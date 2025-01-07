@@ -1,107 +1,87 @@
 <!DOCTYPE html>
-<html>
-    <head>
-        <script src="//js.jotform.com/JotFormCustomWidget.min.js"></script>
-        <style>
-            body {
-                font-family: Arial, sans-serif;
-                margin: 0;
-                padding: 0;
-            }
-            #main {
-                padding: 20px;
-            }
-            .slot {
-                display: flex;
-                justify-content: space-between;
-                padding: 8px;
-                border: 1px solid #ddd;
-                margin: 5px 0;
-                border-radius: 5px;
-                background-color: #bbff33;
-            }
-            .slot.signed-up {
-                background-color: #e0f7fa;
-                color: #00796b;
-            }
-            .slot .label {
-                font-size: 16px;
-            }
-            .slot .count {
-                font-size: 14px;
-                font-weight: bold;
-            }
-            .slot button {
-                padding: 6px 12px;
-                background-color: #00796b;
-                color: white;
-                border: none;
-                border-radius: 4px;
-                cursor: pointer;
-            }
-            .slot button:disabled {
-                background-color: #ccc;
-            }
-        </style>
-    </head>
-    <body>
-        <div id="main">
-            <h3>Volunteer Signup</h3>
-            <p>Choose your volunteer time slot:</p>
-            <div id="slots"></div>
-        </div>
-        <script type="text/javascript">
-            // Slot data: Time and available slots
-            const slotsData = [
-                { time: '9:00 AM - 10:00 AM', available: 5 },
-                { time: '10:00 AM - 11:00 AM', available: 3 },
-                { time: '11:00 AM - 12:00 PM', available: 2 },
-                { time: '12:00 PM - 1:00 PM', available: 4 },
-                { time: '1:00 PM - 2:00 PM', available: 6 }
-            ];
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Volunteer Sign Up</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+        h1, h2 {
+            text-align: center;
+        }
+        .time-slot {
+            margin: 10px 0;
+        }
+        .time-slot button {
+            padding: 10px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .time-slot button:disabled {
+            background-color: gray;
+        }
+    </style>
+</head>
+<body>
+    <h1>Volunteer Sign Up</h1>
+    <h2>Choose Your Volunteer Time Slot</h2>
 
-            // Function to render slots
-            function renderSlots() {
-                const slotsContainer = document.getElementById('slots');
-                slotsContainer.innerHTML = ''; // Clear previous slots
-                slotsData.forEach((slot, index) => {
-                    const slotDiv = document.createElement('div');
-                    slotDiv.className = 'slot' + (slot.available === 0 ? ' signed-up' : '');
-                    slotDiv.innerHTML = `
-                        <span class="label">${slot.time}</span>
-                        <span class="count">${slot.available} available</span>
-                        <button ${slot.available === 0 ? 'disabled' : ''} onclick="signUp(${index})">Sign Up</button>
-                    `;
-                    slotsContainer.appendChild(slotDiv);
-                });
-            }
+    <div class="time-slot">
+        <h3>Morning Shift</h3>
+        <button id="slot-1" onclick="signUp('slot-1')">Sign Up</button>
+        <span id="slot-1-status">Available</span>
+    </div>
 
-            // Sign up function (decreases available slots)
-            function signUp(index) {
-                if (slotsData[index].available > 0) {
-                    slotsData[index].available--;
-                    renderSlots(); // Re-render slots to reflect new availability
-                    sendData(); // Send updated data to JotForm
-                }
-            }
+    <div class="time-slot">
+        <h3>Afternoon Shift</h3>
+        <button id="slot-2" onclick="signUp('slot-2')">Sign Up</button>
+        <span id="slot-2-status">Available</span>
+    </div>
 
-            // Send data to JotForm
-            function sendData() {
-                const updatedSlots = slotsData.map(slot => ({
-                    time: slot.time,
-                    available: slot.available
-                }));
-                const result = {
-                    valid: true,
-                    value: JSON.stringify(updatedSlots) // Send the slot data as a JSON string
-                };
-                JFCustomWidget.sendSubmit(result); // Send data back to JotForm
-            }
+    <div class="time-slot">
+        <h3>Evening Shift</h3>
+        <button id="slot-3" onclick="signUp('slot-3')">Sign Up</button>
+        <span id="slot-3-status">Available</span>
+    </div>
 
-            // Initialize widget
-            JFCustomWidget.subscribe("ready", function() {
-                renderSlots(); // Initial render of slots
-            });
-        </script>
-    </body>
+    <script>
+        // JavaScript to handle sign-up and slot availability
+        const slots = {
+            "slot-1": { status: "Available", signUps: 0, maxSignUps: 5 },
+            "slot-2": { status: "Available", signUps: 0, maxSignUps: 5 },
+            "slot-3": { status: "Available", signUps: 0, maxSignUps: 5 }
+        };
+
+        function signUp(slotId) {
+            if (slots[slotId].signUps < slots[slotId].maxSignUps) {
+                slots[slotId].signUps++;
+                updateSlot(slotId);
+            } else {
+                alert("This slot is full.");
+            }
+        }
+
+        function updateSlot(slotId) {
+            const slot = slots[slotId];
+            const button = document.getElementById(slotId);
+            const status = document.getElementById(slotId + "-status");
+
+            if (slot.signUps >= slot.maxSignUps) {
+                button.disabled = true;
+                status.textContent = "Full";
+            } else {
+                status.textContent = `Available (${slot.maxSignUps - slot.signUps} spots left)`;
+            }
+        }
+
+        // Initialize slots on page load
+        window.onload = function() {
+            Object.keys(slots).forEach(updateSlot);
+        };
+    </script>
+</body>
 </html>
+
